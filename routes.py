@@ -75,10 +75,18 @@ def register():
         db.session.add(user)
         db.session.commit()
         
-        # Send verification email
-        send_verification_email(user)
+        # Send verification email or auto-verify in development
+        email_sent = send_verification_email(user)
+        db.session.commit()  # Commit changes after auto-verification
         
-        flash('Your account has been created! Please check your email to verify your account.', 'success')
+        if email_sent:
+            flash('Your account has been created! Please check your email to verify your account.', 'success')
+        else:
+            if user.is_verified:
+                flash('Your account has been created and auto-verified for development purposes. You can now log in.', 'success')
+            else:
+                flash('Your account has been created, but email verification could not be sent. Please contact support.', 'warning')
+                
         return redirect(url_for('login'))
     
     return render_template('auth/register.html', title='Register', form=form)
@@ -108,7 +116,9 @@ def reset_request():
         user = User.query.filter_by(email=form.email.data).first()
         
         if user:
-            send_reset_password_email(user)
+            email_sent = send_reset_password_email(user)
+            if not email_sent:
+                app.logger.info(f"For development: Use token {user.reset_token} to reset password")
         
         flash('If an account with that email exists, we have sent a password reset link.', 'info')
         return redirect(url_for('login'))

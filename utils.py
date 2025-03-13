@@ -11,14 +11,28 @@ def send_verification_email(user):
     
     verification_url = url_for('verify_email', token=token, _external=True)
     
-    msg = Message(
-        subject='Verify Your TechLearn Account',
-        recipients=[user.email],
-        html=render_template('auth/verify_email.html', 
-                            user=user, 
-                            verification_url=verification_url)
-    )
-    mail.send(msg)
+    # Check if email configuration is available
+    email_configured = app.config.get('MAIL_USERNAME') != 'example@gmail.com' and app.config.get('MAIL_PASSWORD') != 'password'
+    
+    if email_configured:
+        try:
+            msg = Message(
+                subject='Verify Your TechLearn Account',
+                recipients=[user.email],
+                html=render_template('auth/verify_email.html', 
+                                    user=user, 
+                                    verification_url=verification_url)
+            )
+            mail.send(msg)
+            return True
+        except Exception as e:
+            app.logger.error(f"Failed to send verification email: {str(e)}")
+            return False
+    else:
+        app.logger.warning("Email not configured. Skipping verification email.")
+        # Auto-verify the user in development environment
+        user.is_verified = True
+        return False
 
 def send_reset_password_email(user):
     """Send password reset email to the user"""
@@ -26,14 +40,32 @@ def send_reset_password_email(user):
     
     reset_url = url_for('reset_password', token=token, _external=True)
     
-    msg = Message(
-        subject='Reset Your TechLearn Password',
-        recipients=[user.email],
-        html=render_template('auth/reset_password.html', 
-                           user=user, 
-                           reset_url=reset_url)
-    )
-    mail.send(msg)
+    # Check if email configuration is available
+    email_configured = app.config.get('MAIL_USERNAME') != 'example@gmail.com' and app.config.get('MAIL_PASSWORD') != 'password'
+    
+    if email_configured:
+        try:
+            msg = Message(
+                subject='Reset Your TechLearn Password',
+                recipients=[user.email],
+                html=render_template('auth/reset_password.html', 
+                                    user=user, 
+                                    reset_url=reset_url)
+            )
+            mail.send(msg)
+            return True
+        except Exception as e:
+            app.logger.error(f"Failed to send password reset email: {str(e)}")
+            # In production, we would return False here
+            # For development and testing purposes, we'll print the reset URL to logs
+            app.logger.info(f"Password reset URL (development only): {reset_url}")
+            return False
+    else:
+        app.logger.warning("Email not configured. Showing reset token in logs for development.")
+        # In development, print the reset token to the console
+        app.logger.info(f"Password reset token (development only): {token}")
+        app.logger.info(f"Password reset URL (development only): {reset_url}")
+        return False
 
 def generate_sample_data():
     """
