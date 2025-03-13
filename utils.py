@@ -133,13 +133,19 @@ def generate_sample_data():
     
     db.session.commit()
     
-    # Add events
+    # Add events with future dates
+    from datetime import datetime, timedelta
+    
+    # Calculate dates for future events (1 month and 2 months from now)
+    future_date1 = datetime.utcnow() + timedelta(days=30)
+    future_date2 = datetime.utcnow() + timedelta(days=60)
+    
     event_data = [
         {
             "title": "Python Meetup", 
             "description": "Monthly meetup for Python enthusiasts",
             "location": "San Francisco, CA",
-            "event_date": "2023-12-15 18:00:00",
+            "event_date": future_date1,
             "registration_url": "https://example.com/python-meetup",
             "organizer": "Python Community",
             "is_online": False,
@@ -149,7 +155,7 @@ def generate_sample_data():
             "title": "Machine Learning Workshop", 
             "description": "Hands-on ML workshop",
             "location": "Online",
-            "event_date": "2023-12-20 10:00:00",
+            "event_date": future_date2,
             "registration_url": "https://example.com/ml-workshop",
             "organizer": "AI Research Group",
             "is_online": True,

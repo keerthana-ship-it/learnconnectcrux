@@ -475,6 +475,19 @@ def roadmap_detail(roadmap_id):
     return render_template('crux/roadmap_detail.html', title=roadmap.title,
                          roadmap=roadmap, main_topics=main_topics)
 
+# Development routes
+@app.route('/generate-sample-data')
+@login_required
+def generate_data():
+    from utils import generate_sample_data
+    try:
+        generate_sample_data()
+        flash('Sample data generated successfully!', 'success')
+    except Exception as e:
+        app.logger.error(f"Error generating sample data: {str(e)}")
+        flash('Error generating sample data. See logs for details.', 'danger')
+    return redirect(url_for('index'))
+
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
