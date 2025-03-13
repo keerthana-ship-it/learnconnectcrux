@@ -62,32 +62,47 @@ def register():
     
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, phone=form.phone.data)
-        user.set_password(form.password.data)
-        user.generate_verification_token()
-        
-        # Create user profile
-        profile = UserProfile()
-        db.session.add(profile)
-        db.session.flush()
-        
-        user.profile_id = profile.id
-        db.session.add(user)
-        db.session.commit()
-        
-        # Send verification email or auto-verify in development
-        email_sent = send_verification_email(user)
-        db.session.commit()  # Commit changes after auto-verification
-        
-        if email_sent:
-            flash('Your account has been created! Please check your email to verify your account.', 'success')
-        else:
-            if user.is_verified:
-                flash('Your account has been created and auto-verified for development purposes. You can now log in.', 'success')
-            else:
-                flash('Your account has been created, but email verification could not be sent. Please contact support.', 'warning')
+        try:
+            # Check if phone already exists
+            if form.phone.data and User.query.filter_by(phone=form.phone.data).first():
+                flash('Phone number already registered. Please use a different one.', 'danger')
+                return render_template('auth/register.html', title='Register', form=form)
                 
-        return redirect(url_for('login'))
+            user = User(username=form.username.data, email=form.email.data)
+            # Only set phone if it's not empty
+            if form.phone.data and form.phone.data.strip():
+                user.phone = form.phone.data
+                
+            user.set_password(form.password.data)
+            user.generate_verification_token()
+            
+            # Create user profile
+            profile = UserProfile()
+            db.session.add(profile)
+            db.session.flush()
+            
+            user.profile_id = profile.id
+            db.session.add(user)
+            db.session.commit()
+            
+            # Send verification email or auto-verify in development
+            email_sent = send_verification_email(user)
+            db.session.commit()  # Commit changes after auto-verification
+            
+            if email_sent:
+                flash('Your account has been created! Please check your email to verify your account.', 'success')
+            else:
+                if user.is_verified:
+                    flash('Your account has been created and auto-verified for development purposes. You can now log in.', 'success')
+                else:
+                    flash('Your account has been created, but email verification could not be sent. Please contact support.', 'warning')
+                    
+            return redirect(url_for('login'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Registration error: {str(e)}")
+            flash('There was an error processing your registration. Please try again with different information.', 'danger')
     
     return render_template('auth/register.html', title='Register', form=form)
 
@@ -159,26 +174,42 @@ def profile():
     form = ProfileForm()
     
     if form.validate_on_submit():
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        current_user.phone = form.phone.data
-        
-        if not current_user.profile:
-            profile = UserProfile()
-            db.session.add(profile)
-            db.session.flush()
-            current_user.profile_id = profile.id
-        
-        current_user.profile.location = form.location.data
-        current_user.profile.bio = form.bio.data
-        current_user.profile.skills = form.skills.data
-        current_user.profile.interests = form.interests.data
-        current_user.profile.education = form.education.data
-        current_user.profile.experience_level = form.experience_level.data
-        
-        db.session.commit()
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
+        try:
+            # Check if phone already exists and belongs to another user
+            if form.phone.data and form.phone.data.strip():
+                existing_user = User.query.filter_by(phone=form.phone.data).first()
+                if existing_user and existing_user.id != current_user.id:
+                    flash('Phone number already registered by another user. Please use a different one.', 'danger')
+                    return render_template('profile.html', title='My Profile', form=form)
+                current_user.phone = form.phone.data
+            else:
+                current_user.phone = None  # Clear the phone field if empty
+                
+            current_user.username = form.username.data
+            current_user.email = form.email.data
+            
+            if not current_user.profile:
+                profile = UserProfile()
+                db.session.add(profile)
+                db.session.flush()
+                current_user.profile_id = profile.id
+            
+            current_user.profile.location = form.location.data
+            current_user.profile.bio = form.bio.data
+            current_user.profile.skills = form.skills.data
+            current_user.profile.interests = form.interests.data
+            current_user.profile.education = form.education.data
+            current_user.profile.experience_level = form.experience_level.data
+            
+            db.session.commit()
+            flash('Your profile has been updated!', 'success')
+            return redirect(url_for('profile'))
+            
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Profile update error: {str(e)}")
+            flash('There was an error updating your profile. Please try again.', 'danger')
+            return render_template('profile.html', title='My Profile', form=form)
     
     elif request.method == 'GET':
         form.username.data = current_user.username
