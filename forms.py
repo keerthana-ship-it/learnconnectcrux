@@ -11,7 +11,7 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired()])
     phone = StringField('Phone Number (Optional)', validators=[Optional(), Length(min=10, max=15)])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
     confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
@@ -28,7 +28,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('That email is already registered. Please use a different one.')
 
 class ResetRequestForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired()])
     submit = SubmitField('Request Password Reset')
 
 class ResetPasswordForm(FlaskForm):
@@ -38,7 +38,7 @@ class ResetPasswordForm(FlaskForm):
 
 class ProfileForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=64)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired()])
     phone = StringField('Phone Number', validators=[Optional(), Length(min=10, max=15)])
     location = StringField('Location', validators=[Optional()])
     bio = TextAreaField('Bio', validators=[Optional(), Length(max=500)])
