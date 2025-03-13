@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Content - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3"><i class="fas fa-book-open me-2"></i>Learning Content</h1>
+            <p class="lead">Discover curated learning resources tailored to your interests</p>
+        </div>
+    </div>
+    
+    <!-- Search and Filters -->
+    <div class="card bg-dark mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('collect_dashboard') }}" class="filter-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            {{ form.query(class="form-control", placeholder="Search by title or description", value=query) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-code"></i></span>
+                            <input type="text" class="form-control" name="skill" placeholder="Filter by skill" value="{{ current_skill }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.content_type.label(class="form-label") }}
+                        {{ form.content_type(class="form-select") }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.difficulty.label(class="form-label") }}
+                        {{ form.difficulty(class="form-select") }}
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-1"></i> Apply Filters
+                        </button>
+                        <a href="{{ url_for('collect_dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo me-1"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Skills Quick Filter -->
+    <div class="mb-4">
+        <h5>Popular Skills</h5>
+        <div class="d-flex flex-wrap gap-2">
+            {% for skill in skills[:8] %}
+                <a href="{{ url_for('collect_dashboard', skill=skill.name) }}" 
+                   class="badge text-decoration-none {% if current_skill == skill.name %}bg-primary{% else %}bg-secondary{% endif %} p-2">
+                    {{ skill.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Content List -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for content in contents.items %}
+            <div class="col animate-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                <div class="card h-100 bg-dark card-hover difficulty-{{ content.difficulty_level }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ content.title }}</h5>
+                        <div class="mb-2">
+                            <span class="badge bg-secondary">{{ content.content_type|capitalize }}</span>
+                            <span class="badge bg-secondary">{{ content.difficulty_level|capitalize }}</span>
+                        </div>
+                        <p class="card-text">{{ content.description|truncate(100) }}</p>
+                        <div class="mt-3 d-flex flex-wrap gap-1">
+                            {% for skill in content.skills %}
+                                <span class="badge bg-info">{{ skill.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('content_detail', content_id=content.id) }}" class="btn btn-sm btn-primary">Learn More</a>
+                        
+                        {% set is_bookmarked = current_user.bookmarks.filter_by(content_id=content.id).first() is not none %}
+                        <button class="btn btn-sm {% if is_bookmarked %}btn-primary{% else %}btn-outline-primary{% endif %} bookmark-content-btn" 
+                                data-content-id="{{ content.id }}" 
+                                data-bs-toggle="tooltip" 
+                                title="{% if is_bookmarked %}Remove from bookmarks{% else %}Add to bookmarks{% endif %}">
+                            <i class="{% if is_bookmarked %}fas{% else %}far{% endif %} fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No content found matching your filters. Try adjusting your search criteria.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if contents.pages > 1 %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if contents.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('collect_dashboard', page=contents.prev_num, query=query, skill=current_skill, content_type=current_type, difficulty=current_difficulty) }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#"><i class="fas fa-chevron-left"></i> Previous</a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in contents.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == contents.page %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('collect_dashboard', page=page_num, query=query, skill=current_skill, content_type=current_type, difficulty=current_difficulty) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if contents.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('collect_dashboard', page=contents.next_num, query=query, skill=current_skill, content_type=current_type, difficulty=current_difficulty) }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">Next <i class="fas fa-chevron-right"></i></a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

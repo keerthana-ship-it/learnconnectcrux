@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Roadmaps - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3"><i class="fas fa-map-signs me-2"></i>Learning Roadmaps</h1>
+            <p class="lead">Follow structured paths to master new skills and technologies</p>
+        </div>
+    </div>
+    
+    <!-- Filter by Skill -->
+    <div class="card bg-dark mb-4">
+        <div class="card-body">
+            <h5 class="mb-3">Filter by Skill</h5>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('roadmaps_list') }}" class="badge p-2 text-decoration-none {% if not selected_skill_id %}bg-primary{% else %}bg-secondary{% endif %}">
+                    All Roadmaps
+                </a>
+                {% for skill in skills %}
+                    <a href="{{ url_for('roadmaps_list', skill_id=skill.id) }}" 
+                       class="badge p-2 text-decoration-none {% if selected_skill_id == skill.id %}bg-primary{% else %}bg-secondary{% endif %}">
+                        {{ skill.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Roadmaps Grid -->
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for roadmap in roadmaps %}
+            <div class="col animate-fade-in" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                <div class="card h-100 bg-dark card-hover">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ roadmap.title }}</h4>
+                        <p class="card-text">{{ roadmap.description }}</p>
+                        
+                        <!-- Skills Tags -->
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            {% for skill in roadmap.skills %}
+                                <span class="badge bg-info">{{ skill.name }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Topic Preview -->
+                        <div class="roadmap-topics-preview">
+                            <h6 class="text-muted mb-2">Topics covered:</h6>
+                            <ul class="list-group list-group-flush">
+                                {% for topic in roadmap.topics.order_by('order').limit(3).all() %}
+                                    <li class="list-group-item bg-dark ps-0">
+                                        <i class="fas fa-check-circle text-success me-2"></i> {{ topic.title }}
+                                    </li>
+                                {% endfor %}
+                                {% if roadmap.topics.count() > 3 %}
+                                    <li class="list-group-item bg-dark ps-0 text-muted">
+                                        <i class="fas fa-ellipsis-h me-2"></i> And {{ roadmap.topics.count() - 3 }} more topics
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('roadmap_detail', roadmap_id=roadmap.id) }}" class="btn btn-primary">
+                            <i class="fas fa-map-marked-alt me-1"></i> Explore Roadmap
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No roadmaps found for the selected skill. Try selecting a different skill or view all roadmaps.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Creating your own roadmap info -->
+    <div class="card bg-dark mt-5">
+        <div class="card-body text-center py-4">
+            <h3 class="mb-3">Looking for a specific learning path?</h3>
+            <p class="lead">Our collection of roadmaps is constantly growing. Check back regularly for new content or let us know what you'd like to see!</p>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a href="{{ url_for('collect_dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-search me-1"></i> Browse Learning Content
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

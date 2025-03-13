@@ -1,0 +1,190 @@
+/* Custom styles for TechLearn Platform */
+
+/* Global styles */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+/* Card hover effects */
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom badges for different content types */
+.badge-article {
+    background-color: var(--bs-purple);
+}
+
+.badge-video {
+    background-color: var(--bs-danger);
+}
+
+.badge-course {
+    background-color: var(--bs-success);
+}
+
+.badge-tutorial {
+    background-color: var(--bs-info);
+}
+
+/* Difficulty level indicators */
+.difficulty-beginner {
+    border-left: 4px solid var(--bs-success);
+}
+
+.difficulty-intermediate {
+    border-left: 4px solid var(--bs-warning);
+}
+
+.difficulty-advanced {
+    border-left: 4px solid var(--bs-danger);
+}
+
+/* Quiz related styles */
+.quiz-question {
+    display: none;
+}
+
+.quiz-option {
+    cursor: pointer;
+    border: 1px solid var(--bs-gray-300);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.quiz-option:hover {
+    background-color: var(--bs-gray-200);
+}
+
+.quiz-option.selected {
+    background-color: var(--bs-primary);
+    color: white;
+    border-color: var(--bs-primary);
+}
+
+/* Roadmap styles */
+.roadmap-topic {
+    border-left: 3px solid var(--bs-primary);
+    padding-left: 15px;
+    margin-bottom: 20px;
+}
+
+.roadmap-subtopic {
+    margin-left: 30px;
+    border-left: 2px solid var(--bs-info);
+    padding-left: 15px;
+}
+
+/* Profile page styles */
+.profile-header {
+    background: linear-gradient(to right, var(--bs-primary), var(--bs-info));
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+    border-radius: 0 0 10px 10px;
+}
+
+.user-stats {
+    text-align: center;
+}
+
+.user-stats .stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.user-stats .stat-label {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* Custom progress bar for skills */
+.skill-progress {
+    height: 8px;
+    margin-bottom: 5px;
+}
+
+/* Animation for dashboard cards */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Override background colors for dark theme compatibility */
+.bg-light-custom {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Custom styling for event cards */
+.event-date-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--bs-primary);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.event-location {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--bs-gray-600);
+}
+
+.event-location i {
+    margin-right: 5px;
+}
+
+/* Bookmarks button */
+.bookmark-btn {
+    border: none;
+    background: transparent;
+    color: var(--bs-primary);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.bookmark-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .hero-section {
+        text-align: center;
+    }
+    
+    .profile-header {
+        padding: 20px 0;
+    }
+    
+    .user-stats {
+        margin-top: 20px;
+    }
+}

@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">{{ current_user.username }}</h1>
+                    <p class="mb-0">
+                        <i class="fas fa-envelope me-2"></i>{{ current_user.email }}
+                        {% if current_user.phone %}
+                            <span class="ms-3"><i class="fas fa-phone me-2"></i>{{ current_user.phone }}</span>
+                        {% endif %}
+                    </p>
+                    {% if current_user.profile and current_user.profile.location %}
+                        <p class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>{{ current_user.profile.location }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <div class="row user-stats">
+                        <div class="col">
+                            <div class="stat-value">{{ bookmarked_content|length }}</div>
+                            <div class="stat-label">Saved Content</div>
+                        </div>
+                        <div class="col">
+                            <div class="stat-value">{{ bookmarked_events|length }}</div>
+                            <div class="stat-label">Saved Events</div>
+                        </div>
+                        <div class="col">
+                            <div class="stat-value">{{ quiz_results|length }}</div>
+                            <div class="stat-label">Quizzes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Sidebar/Navigation -->
+            <div class="col-md-3 mb-4">
+                <div class="list-group">
+                    <a href="#profile" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                        <i class="fas fa-user me-2"></i>Profile
+                    </a>
+                    <a href="#bookmarked-content" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-bookmark me-2"></i>Saved Content
+                    </a>
+                    <a href="#bookmarked-events" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-calendar-check me-2"></i>Saved Events
+                    </a>
+                    <a href="#quiz-results" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                        <i class="fas fa-clipboard-check me-2"></i>Quiz Results
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="tab-content">
+                    <!-- Profile Tab -->
+                    <div class="tab-pane fade show active" id="profile">
+                        <div class="card bg-dark">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Profile Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('profile') }}">
+                                    {{ form.hidden_tag() }}
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            {{ form.username.label(class="form-label") }}
+                                            {% if form.username.errors %}
+                                                {{ form.username(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.username.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.username(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form.email.label(class="form-label") }}
+                                            {% if form.email.errors %}
+                                                {{ form.email(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.email.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.email(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            {{ form.phone.label(class="form-label") }}
+                                            {% if form.phone.errors %}
+                                                {{ form.phone(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.phone.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.phone(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form.location.label(class="form-label") }}
+                                            {% if form.location.errors %}
+                                                {{ form.location(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.location.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.location(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ form.bio.label(class="form-label") }}
+                                        {% if form.bio.errors %}
+                                            {{ form.bio(class="form-control is-invalid", rows=4) }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.bio.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.bio(class="form-control", rows=4) }}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Skills</label>
+                                        <div class="input-group mb-2">
+                                            <input type="text" id="new-skill" class="form-control" placeholder="Add a skill">
+                                            <button class="btn btn-outline-primary" type="button" id="add-skill">Add</button>
+                                        </div>
+                                        <div id="skill-tags" class="my-2">
+                                            <!-- Skill tags will be added here via JavaScript -->
+                                        </div>
+                                        {{ form.skills(class="form-control", style="display: none;") }}
+                                    </div>
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            {{ form.interests.label(class="form-label") }}
+                                            {% if form.interests.errors %}
+                                                {{ form.interests(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.interests.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.interests(class="form-control") }}
+                                            {% endif %}
+                                            <div class="form-text">Separate multiple interests with commas</div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{ form.education.label(class="form-label") }}
+                                            {% if form.education.errors %}
+                                                {{ form.education(class="form-control is-invalid") }}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.education.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                {{ form.education(class="form-control") }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        {{ form.experience_level.label(class="form-label") }}
+                                        {% if form.experience_level.errors %}
+                                            {{ form.experience_level(class="form-select is-invalid") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.experience_level.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.experience_level(class="form-select") }}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="d-grid">
+                                        {{ form.submit(class="btn btn-primary") }}
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bookmarked Content Tab -->
+                    <div class="tab-pane fade" id="bookmarked-content">
+                        <div class="card bg-dark">
+                            <div class="card-header">
+                                <h5 class="mb-0">Saved Learning Content</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if bookmarked_content %}
+                                    <div class="row row-cols-1 row-cols-md-2 g-4">
+                                        {% for content in bookmarked_content %}
+                                            <div class="col">
+                                                <div class="card h-100 bg-dark card-hover">
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">{{ content.title }}</h5>
+                                                        <div class="mb-2">
+                                                            <span class="badge bg-{{ content.content_type }}">{{ content.content_type|capitalize }}</span>
+                                                            <span class="badge bg-secondary">{{ content.difficulty_level|capitalize }}</span>
+                                                        </div>
+                                                        <p class="card-text">{{ content.description|truncate(100) }}</p>
+                                                    </div>
+                                                    <div class="card-footer">
+                                                        <a href="{{ url_for('content_detail', content_id=content.id) }}" class="btn btn-sm btn-primary">View Content</a>
+                                                        <button class="btn btn-sm btn-outline-danger bookmark-content-btn float-end" 
+                                                                data-content-id="{{ content.id }}" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Remove from bookmarks">
+                                                            <i class="fas fa-bookmark"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-bookmark fa-3x mb-3 text-muted"></i>
+                                        <h5>No bookmarked content yet</h5>
+                                        <p class="text-muted">Save interesting content to access it later</p>
+                                        <a href="{{ url_for('collect_dashboard') }}" class="btn btn-primary mt-2">Explore Content</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Bookmarked Events Tab -->
+                    <div class="tab-pane fade" id="bookmarked-events">
+                        <div class="card bg-dark">
+                            <div class="card-header">
+                                <h5 class="mb-0">Saved Events</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if bookmarked_events %}
+                                    <div class="list-group">
+                                        {% for event in bookmarked_events %}
+                                            <div class="list-group-item list-group-item-action bg-dark">
+                                                <div class="d-flex w-100 justify-content-between">
+                                                    <h5 class="mb-1">{{ event.title }}</h5>
+                                                    <small>{{ event.event_date.strftime('%b %d, %Y') }}</small>
+                                                </div>
+                                                <p class="mb-1">{{ event.description|truncate(150) }}</p>
+                                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                                    <small><i class="fas fa-map-marker-alt me-1"></i> {{ event.location }}</small>
+                                                    <div>
+                                                        <a href="{{ url_for('event_detail', event_id=event.id) }}" class="btn btn-sm btn-success">View Event</a>
+                                                        <button class="btn btn-sm btn-outline-danger bookmark-event-btn ms-2" 
+                                                                data-event-id="{{ event.id }}" 
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Remove from bookmarks">
+                                                            <i class="fas fa-bookmark"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-calendar-alt fa-3x mb-3 text-muted"></i>
+                                        <h5>No bookmarked events yet</h5>
+                                        <p class="text-muted">Save events you're interested in attending</p>
+                                        <a href="{{ url_for('events_list') }}" class="btn btn-success mt-2">Find Events</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Results Tab -->
+                    <div class="tab-pane fade" id="quiz-results">
+                        <div class="card bg-dark">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quiz Results</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if quiz_results %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Quiz</th>
+                                                    <th>Score</th>
+                                                    <th>Date</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for result in quiz_results %}
+                                                    <tr>
+                                                        <td>{{ result.quiz.title }}</td>
+                                                        <td>
+                                                            <div class="progress" style="height: 20px;">
+                                                                <div class="progress-bar progress-bar-striped {% if result.score < 50 %}bg-danger{% elif result.score < 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                                     role="progressbar" 
+                                                                     style="width: {{ result.score }}%;" 
+                                                                     aria-valuenow="{{ result.score }}" 
+                                                                     aria-valuemin="0" 
+                                                                     aria-valuemax="100">
+                                                                    {{ result.score }}%
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>{{ result.completed_at.strftime('%b %d, %Y') }}</td>
+                                                        <td>
+                                                            <a href="{{ url_for('take_quiz', quiz_id=result.quiz.id) }}" class="btn btn-sm btn-primary">Retake Quiz</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-5">
+                                        <i class="fas fa-clipboard-list fa-3x mb-3 text-muted"></i>
+                                        <h5>No quiz results yet</h5>
+                                        <p class="text-muted">Take quizzes to test your knowledge</p>
+                                        <a href="{{ url_for('collect_dashboard') }}" class="btn btn-primary mt-2">Find Quizzes</a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

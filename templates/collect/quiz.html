@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ quiz.title }} - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('collect_dashboard') }}">Learning Content</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ quiz.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card bg-dark">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">{{ quiz.title }}</h2>
+                </div>
+                <div class="card-body">
+                    <div class="quiz-info mb-4">
+                        <p class="lead">{{ quiz.description }}</p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-info me-2">{{ quiz.skill.name }}</span>
+                                <span class="badge bg-secondary">{{ quiz.difficulty_level|capitalize }}</span>
+                            </div>
+                            <div>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-question-circle me-1"></i> {{ questions|length }} Questions
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress mb-4">
+                        <div id="quiz-progress" class="progress-bar bg-success" role="progressbar" 
+                             style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            0%
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Form -->
+                    <form id="quiz-form" method="POST" action="{{ url_for('submit_quiz', quiz_id=quiz.id) }}">
+                        {{ form.hidden_tag() if form is defined else '' }}
+                        
+                        {% for question in questions %}
+                            <div class="quiz-question" id="question-{{ question.id }}">
+                                <h4 class="mb-4">Question {{ loop.index }} of {{ questions|length }}</h4>
+                                <div class="card bg-dark border-secondary mb-4">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ question.question_text }}</h5>
+                                    </div>
+                                </div>
+                                
+                                <div class="options-list">
+                                    {% for option in question.options %}
+                                        <div class="quiz-option mb-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" 
+                                                       name="question_{{ question.id }}" 
+                                                       id="option-{{ option.id }}" 
+                                                       value="{{ option.id }}">
+                                                <label class="form-check-label w-100 ps-2" for="option-{{ option.id }}">
+                                                    {{ option.option_text }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="d-flex justify-content-between mt-4">
+                                    {% if not loop.first %}
+                                        <button type="button" class="btn btn-outline-secondary prev-question" data-question-id="{{ question.id }}">
+                                            <i class="fas fa-arrow-left me-1"></i> Previous
+                                        </button>
+                                    {% else %}
+                                        <div></div>
+                                    {% endif %}
+                                    
+                                    {% if loop.last %}
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-check me-1"></i> Submit Quiz
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-primary next-question" data-question-id="{{ question.id }}">
+                                            Next <i class="fas fa-arrow-right ms-1"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </form>
+                </div>
+                <div class="card-footer bg-dark">
+                    <div class="text-muted">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i> 
+                            Your answers will be saved when you submit the quiz.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Custom script for quiz options UI
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                const input = this.querySelector('input[type="radio"]');
+                input.checked = true;
+                
+                // Visual feedback
+                const parentQuestion = this.closest('.quiz-question');
+                const allOptions = parentQuestion.querySelectorAll('.quiz-option');
+                allOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    });
+</script>
+{% endblock %}

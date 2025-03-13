@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="mb-4">
+                <svg width="200" height="200" viewBox="0 0 600 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 404 illustration -->
+                    <text x="150" y="180" font-family="Arial" font-size="120" font-weight="bold" fill="#0d6efd">404</text>
+                    <rect x="120" y="200" width="360" height="10" rx="5" fill="#444"/>
+                    <circle cx="200" cy="250" r="20" fill="#0dcaf0"/>
+                    <circle cx="400" cy="250" r="20" fill="#0dcaf0"/>
+                    <path d="M200 270 Q300 320 400 270" stroke="#555" stroke-width="8" fill="none"/>
+                </svg>
+            </div>
+            
+            <h1 class="display-4 mb-4">Page Not Found</h1>
+            <p class="lead mb-5">Oops! The page you're looking for doesn't exist or has been moved.</p>
+            
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home me-1"></i> Go to Homepage
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Go Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

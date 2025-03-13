@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Reset Password - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-key me-2"></i>Reset Password</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                    
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.email.label(class="form-label") }}
+                            {% if form.email.errors %}
+                                {{ form.email(class="form-control is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.email(class="form-control", placeholder="Enter your email") }}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-info") }}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <small><a href="{{ url_for('login') }}">Back to Login</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

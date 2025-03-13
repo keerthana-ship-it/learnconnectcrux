@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - TechLearn{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('events_list') }}">Events</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ event.title }}</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <div class="card bg-dark mb-4">
+                <div class="card-body">
+                    <h1 class="card-title mb-3">{{ event.title }}</h1>
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <div>
+                            {% if event.is_online %}
+                                <span class="badge bg-info me-2">Online</span>
+                            {% endif %}
+                            <span class="badge bg-success">Upcoming Event</span>
+                        </div>
+                        <div>
+                            <button class="btn {% if is_bookmarked %}btn-primary{% else %}btn-outline-primary{% endif %} bookmark-event-btn" 
+                                    data-event-id="{{ event.id }}" 
+                                    data-bs-toggle="tooltip" 
+                                    title="{% if is_bookmarked %}Remove from bookmarks{% else %}Add to bookmarks{% endif %}">
+                                <i class="{% if is_bookmarked %}fas{% else %}far{% endif %} fa-bookmark me-1"></i>
+                                {% if is_bookmarked %}Bookmarked{% else %}Bookmark{% endif %}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="event-details mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="event-info-item mb-3">
+                                    <h5><i class="fas fa-calendar-alt text-primary me-2"></i>Date & Time</h5>
+                                    <p>{{ event.event_date.strftime('%A, %B %d, %Y') }}<br>
+                                    {{ event.event_date.strftime('%I:%M %p') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="event-info-item mb-3">
+                                    <h5><i class="fas fa-map-marker-alt text-danger me-2"></i>Location</h5>
+                                    <p>{{ event.location }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="event-info-item mb-3">
+                            <h5><i class="fas fa-user-tie text-success me-2"></i>Organizer</h5>
+                            <p>{{ event.organizer or 'Information not available' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="event-description mb-4">
+                        <h5>About this event</h5>
+                        <p class="lead">{{ event.description }}</p>
+                    </div>
+                    
+                    {% if event.registration_url %}
+                    <div class="registration-section mb-4">
+                        <a href="{{ event.registration_url }}" target="_blank" class="btn btn-success btn-lg">
+                            <i class="fas fa-ticket-alt me-1"></i> Register for this Event
+                        </a>
+                        <small class="d-block mt-2 text-muted">
+                            <i class="fas fa-info-circle me-1"></i> Registration is handled on the organizer's website
+                        </small>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="skills-section mb-3">
+                        <h5>Related Skills</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for skill in event.skills %}
+                                <a href="{{ url_for('events_list', skill=skill.name) }}" class="badge bg-info text-decoration-none">
+                                    {{ skill.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="event-meta text-muted mt-4">
+                        <small>Added on {{ event.created_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Share Event -->
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Share this Event</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a href="https://twitter.com/intent/tweet?text={{ event.title|urlencode }}&url={{ url_for('event_detail', event_id=event.id, _external=True)|urlencode }}" 
+                           target="_blank" class="btn btn-outline-info">
+                            <i class="fab fa-twitter me-1"></i> Twitter
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ url_for('event_detail', event_id=event.id, _external=True)|urlencode }}" 
+                           target="_blank" class="btn btn-outline-primary">
+                            <i class="fab fa-facebook me-1"></i> Facebook
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ url_for('event_detail', event_id=event.id, _external=True)|urlencode }}" 
+                           target="_blank" class="btn btn-outline-secondary">
+                            <i class="fab fa-linkedin me-1"></i> LinkedIn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Calendar Add -->
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Add to Calendar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ event.title|urlencode }}&dates={{ event.event_date.strftime('%Y%m%dT%H%M%S') }}/{{ event.event_date.strftime('%Y%m%dT%H%M%S') }}&details={{ event.description|urlencode }}&location={{ event.location|urlencode }}" 
+                           target="_blank" class="btn btn-outline-danger">
+                            <i class="far fa-calendar-plus me-1"></i> Google Calendar
+                        </a>
+                        <a href="#" class="btn btn-outline-primary">
+                            <i class="far fa-calendar-alt me-1"></i> Outlook Calendar
+                        </a>
+                        <a href="#" class="btn btn-outline-dark">
+                            <i class="fas fa-calendar-day me-1"></i> iCal File (.ics)
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Events -->
+            <div class="card bg-dark mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Similar Events</h5>
+                </div>
+                <div class="card-body">
+                    {% if related_events %}
+                        <div class="list-group list-group-flush">
+                            {% for related_event in related_events %}
+                                <a href="{{ url_for('event_detail', event_id=related_event.id) }}" class="list-group-item list-group-item-action bg-dark">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-1">{{ related_event.title }}</h6>
+                                        <small>{{ related_event.event_date.strftime('%b %d') }}</small>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-1"></i> {{ related_event.location }}
+                                    </small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No similar events found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
